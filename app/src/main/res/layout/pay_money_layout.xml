@@ -1,0 +1,268 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:padding="5dip">
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:orientation="vertical">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:layout_marginBottom="5dip"
+                android:text="期望现金比例"
+                android:textSize="12sp" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:background="@drawable/rounded_blue_bg"
+                android:orientation="horizontal">
+
+
+                <TextView
+                    android:id="@+id/tv_cash_reduce"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:gravity="center"
+                    android:padding="5dp"
+                    android:text="-"
+                    android:textSize="12sp" />
+
+                <ImageView
+                    android:layout_width="1dip"
+                    android:layout_height="match_parent"
+                    android:background="@color/themeColor" />
+
+                <EditText
+                    android:id="@+id/et_cash_except"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="2"
+                    android:background="@null"
+                    android:digits="0123456789"
+                    android:gravity="center"
+                    android:inputType="number"
+                    android:padding="5dp"
+                    android:text="0"
+                    android:textSize="12sp" />
+
+                <ImageView
+                    android:layout_width="1dip"
+                    android:layout_height="match_parent"
+                    android:background="@color/themeColor" />
+
+                <TextView
+                    android:id="@+id/tv_cash_add"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:gravity="center"
+                    android:padding="5dp"
+                    android:text="+"
+                    android:textSize="12sp" />
+            </LinearLayout>
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
+            android:layout_marginLeft="10dip"
+            android:layout_marginRight="10dip"
+            android:layout_weight="1"
+            android:orientation="vertical">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="5dip"
+                android:text="匹配现金"
+                android:textSize="12sp" />
+
+            <EditText
+                android:id="@+id/et_cash_matching"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@drawable/rounded_blue_bg"
+                android:digits="0123456789"
+                android:gravity="center"
+                android:inputType="number"
+                android:padding="5dip"
+                android:text="0"
+                android:textSize="12sp" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
+            android:layout_weight="1"
+            android:orientation="vertical">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="5dip"
+                android:layout_marginRight="5dip"
+                android:text="实际现金比例"
+                android:textSize="12sp" />
+
+            <TextView
+                android:id="@+id/tv_cash_actual"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@drawable/rounded_blue_bg"
+                android:digits="0123456789"
+                android:gravity="center"
+                android:inputType="number"
+                android:padding="5dip"
+                android:text="0"
+                android:textSize="12sp" />
+        </LinearLayout>
+    </LinearLayout>
+    <!--票据-->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:padding="5dip">
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:orientation="vertical">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:layout_marginBottom="5dip"
+                android:text="期望票据比例"
+                android:textSize="12sp" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:background="@drawable/rounded_blue_bg"
+                android:orientation="horizontal">
+
+
+                <TextView
+                    android:id="@+id/tv_bill_reduce"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:gravity="center"
+                    android:padding="5dp"
+                    android:text="-"
+                    android:textSize="12sp" />
+
+                <ImageView
+                    android:layout_width="1dip"
+                    android:layout_height="match_parent"
+                    android:background="@color/themeColor" />
+
+                <EditText
+                    android:id="@+id/et_bill_except"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="2"
+                    android:background="@null"
+                    android:digits="0123456789"
+                    android:gravity="center"
+                    android:inputType="number"
+                    android:padding="5dp"
+                    android:text="0"
+                    android:textSize="12sp" />
+
+                <ImageView
+                    android:layout_width="1dip"
+                    android:layout_height="match_parent"
+                    android:background="@color/themeColor" />
+
+                <TextView
+                    android:id="@+id/tv_bill_add"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:gravity="center"
+                    android:padding="5dp"
+                    android:text="+"
+                    android:textSize="12sp" />
+            </LinearLayout>
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
+            android:layout_marginLeft="10dip"
+            android:layout_marginRight="10dip"
+            android:layout_weight="1"
+            android:orientation="vertical">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="5dip"
+                android:text="匹配票据"
+                android:textSize="12sp" />
+
+            <EditText
+                android:id="@+id/et_bill_matching"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@drawable/rounded_blue_bg"
+                android:digits="0123456789"
+                android:gravity="center"
+                android:inputType="number"
+                android:padding="5dip"
+                android:text="0"
+                android:textSize="12sp" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
+            android:layout_weight="1"
+            android:orientation="vertical">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="5dip"
+                android:layout_marginRight="5dip"
+                android:text="实际票据比例"
+                android:textSize="12sp" />
+
+            <TextView
+                android:id="@+id/tv_bill_actual"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@drawable/rounded_blue_bg"
+                android:digits="0123456789"
+                android:gravity="center"
+                android:inputType="number"
+                android:padding="5dip"
+                android:text="0"
+                android:textSize="12sp" />
+        </LinearLayout>
+    </LinearLayout>
+</LinearLayout>
