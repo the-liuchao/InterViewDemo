@@ -3,15 +3,16 @@ package com.the_liuchao.interview.main;
 import android.app.AlertDialog;
 import android.os.Bundle;
 import android.os.Handler;
-import android.os.Message;
 import android.support.v7.app.AppCompatActivity;
 import android.text.Editable;
 import android.text.TextUtils;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.Window;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.the_liuchao.interview.R;
 import com.the_liuchao.interview.bean.CollectBank;
@@ -19,8 +20,6 @@ import com.the_liuchao.interview.bean.CollectionAccount;
 import com.the_liuchao.interview.bean.PayAccount;
 import com.the_liuchao.interview.dao.DBUtils;
 import com.the_liuchao.interview.date.CustomDatetimeDialog;
-import com.the_liuchao.interview.inter.CollectAccountCallBack;
-import com.the_liuchao.interview.inter.CollectBankCallBack;
 import com.the_liuchao.interview.inter.CustomTextWatcher;
 import com.the_liuchao.interview.inter.ItemSelectedListener;
 import com.the_liuchao.interview.inter.ZoneSelectedListener;
@@ -30,9 +29,7 @@ import com.the_liuchao.interview.utils.ZoneSelectWindow;
 import org.xutils.ex.DbException;
 
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Date;
-import java.util.List;
 
 /**
  * @author the_liucihao
@@ -41,76 +38,23 @@ import java.util.List;
  */
 public class MainActivity extends AppCompatActivity implements View.OnClickListener {
 
-    private static final int AUTO_SEARCH_PAY_ACCOUNT = 0;
-    private static final int AUTO_SEARCH_COLLECT_ACCOUNT = 1;
-    private static final int AUTO_SEARCH_COLLECT_BANK = 2;
-    private EditText _payAccount, _collectAccount;
+    private TextView _payAccount, _collectAccount;
     private LinearLayout _backBtn;
-    private String pay_account = "", collect_account = "", collect_bank = "";//付款账户,收款账户,收款银行
     private TextView _payDate, _cashReduce, _cashAdd, _billReduce, _billAdd;
     private EditText _cashExcept;
     private EditText _billExcept;
     private EditText _digest;
     private TextView _nextSize;
     private EditText _collectName;
-    private EditText _collectBank;
+    private TextView _collectBank;
     private TextView _collectZone;
     private TextView _cashActual, _billActual, _cashMatch, _billMatch;
-    List<CollectionAccount> collectAccounts;
-    List<CollectBank> collectBanks;
     private ZoneSelectWindow zoneWindow;
+    LocationSearchtResults searchtResults;
     /**
      * Handler处理UI更新
      */
-    Handler handler = new Handler() {
-        public void handleMessage(Message msg) {
-            switch (msg.what) {
-                case AUTO_SEARCH_PAY_ACCOUNT:
-                    List<PayAccount> list = null;
-                    try {
-                        list = DBUtils.findAllPayAccount();
-                        final ArrayList<String> results = new ArrayList<>();
-                        if (list == null || list.size() <= 0)
-                            break;
-                        for (PayAccount payAccount : list) {
-                            String account_num = payAccount.getAccount_numb();
-                            if (account_num.indexOf(msg.obj.toString()) != -1)
-                                results.add(account_num);
-                            if (results.size() >= 5)
-                                break;
-                        }
-                        showPopupWindow(results, "pay");
-                    } catch (DbException e) {
-                        e.printStackTrace();
-                    }
-
-                    break;
-                case AUTO_SEARCH_COLLECT_ACCOUNT:
-                    final ArrayList<String> results = new ArrayList<>();
-                    collectAccounts = (List<CollectionAccount>) msg.obj;
-                    if (collectAccounts == null || collectAccounts.size() <= 0)
-                        break;
-//                    collectAccounts.clear();//为防止模糊查询产生过多对象回收掉使用过的对象
-                    for (CollectionAccount collectAccount : collectAccounts) {
-                        String account_num = collectAccount.getAccount_numb();
-                        results.add(account_num);
-                    }
-                    showPopupWindow(results, "collect");
-                    break;
-                case AUTO_SEARCH_COLLECT_BANK:
-                    final ArrayList<String> banks = new ArrayList<>();
-                    collectBanks = (List<CollectBank>) msg.obj;
-                    if (collectBanks == null || collectBanks.size() <= 0)
-                        break;
-                    for (CollectBank collectBank : collectBanks) {
-                        String account_num = collectBank.getBank_name();
-                        banks.add(account_num);
-                    }
-                    showPopupWindow(banks, "bank");
-                    break;
-            }
-        }
-    };
+    Handler handler = new Handler();
 
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -132,8 +76,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
      * 初始化视图方法
      */
     private void initView() {
-        _payAccount = (EditText) findViewById(R.id.tv_payment_account);
-        _collectAccount = (EditText) findViewById(R.id.tv_collect_account);
+        _payAccount = (TextView) findViewById(R.id.tv_payment_account);
+        _collectAccount = (TextView) findViewById(R.id.tv_collect_account);
         _backBtn = (LinearLayout) findViewById(R.id.ll_back);
         _payDate = (TextView) findViewById(R.id.tv_paydate);
         _cashReduce = (TextView) findViewById(R.id.tv_cash_reduce);
@@ -145,7 +89,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         _digest = (EditText) findViewById(R.id.tv_digest);
         _nextSize = (TextView) findViewById(R.id.tv_next_input_size);
         _collectName = (EditText) findViewById(R.id.tv_collect_account_name);
-        _collectBank = (EditText) findViewById(R.id.tv_collect_account_bank);
+        _collectBank = (TextView) findViewById(R.id.tv_collect_account_bank);
         _collectZone = (TextView) findViewById(R.id.tv_collect_account_zone);
         _cashActual = (TextView) findViewById(R.id.tv_cash_actual);
         _billActual = (TextView) findViewById(R.id.tv_bill_actual);
@@ -157,9 +101,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 _collectZone.setText(province + "-" + city + "-" + district);
             }
         });
+        searchtResults = new LocationSearchtResults(this, LayoutInflater.from(this));
     }
-
-
     private void initData() {
         try {
             DBUtils.saveCollectionAccount(new CollectionAccount("642310251210250451", System.currentTimeMillis() + "", "张三", "宝山友谊路招商分行", "上海,浦东新区"));
@@ -210,92 +153,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         _billReduce.setOnClickListener(this);
         _billAdd.setOnClickListener(this);
         _collectZone.setOnClickListener(this);
-        _payAccount.setOnFocusChangeListener(new View.OnFocusChangeListener() {
-            @Override
-            public void onFocusChange(View v, boolean hasFocus) {
-                if (!hasFocus) {
-                    if (searchtResults != null)
-                        searchtResults.setFocusable(true);
-                }
-            }
-        });
-        /**付款账户模糊查询监听*/
-        _payAccount.addTextChangedListener(new CustomTextWatcher() {
-            public void afterTextChanged(Editable s) {
-                String account = _payAccount.getText().toString();
-                if (account.length() > 0) {
-                    //如果没有选择自动匹配记录则开始搜索
-                    if (pay_account.length() <= 0) {
-                        Message msg = handler.obtainMessage(AUTO_SEARCH_PAY_ACCOUNT);
-                        msg.obj = account;
-                        msg.sendToTarget();
-                    } else {
-                        pay_account = "";
-                    }
-                } else {
-                    if (searchtResults != null && searchtResults.isShowing()) {
-                        searchtResults.dismiss();
-                    }
-                }
-            }
-        });
-        /**收款账户模糊查询监听*/
-        _collectAccount.addTextChangedListener(new CustomTextWatcher() {
-            public void afterTextChanged(Editable s) {
-                final String account = _collectAccount.getText().toString();
-                if (account.length() > 0) {
-                    //如果没有选择自动匹配记录则开始搜索
-                    if (collect_account.length() <= 0) {
-                        try {
-                            DBUtils.filterCollectionAccount(account, new CollectAccountCallBack() {
-                                @Override
-                                public void obtainData(List<CollectionAccount> collects) {
-                                    Message msg = handler.obtainMessage(AUTO_SEARCH_COLLECT_ACCOUNT);
-                                    msg.obj = collects;
-                                    msg.sendToTarget();
-                                }
-                            });
-                        } catch (DbException e) {
-                            e.printStackTrace();
-                        }
-                    } else {
-                        collect_account = "";
-                    }
-                } else {
-                    if (searchtResults != null && searchtResults.isShowing()) {
-                        searchtResults.dismiss();
-                    }
-                }
-            }
-        });
-        _collectBank.addTextChangedListener(new CustomTextWatcher() {
-            public void onTextChanged(CharSequence s, int start, int before, int count) {
-                String bank = _collectBank.getText().toString();
-                if (bank.length() > 0) {
-                    if (collect_bank.length() <= 0) {
-                        try {
-                            DBUtils.filterCollectionBank(bank, new CollectBankCallBack() {
-                                public void obtainData(List<CollectBank> banks) {
-                                    Message msg = handler.obtainMessage(AUTO_SEARCH_COLLECT_BANK);
-                                    msg.obj = banks;
-                                    msg.sendToTarget();
-                                }
-                            });
-                        } catch (DbException e) {
-                            e.printStackTrace();
-                        }
-                    } else {
-                        collect_bank = "";
-                    }
-                } else {
-                    if (searchtResults != null && searchtResults.isShowing()) {
-                        searchtResults.dismiss();
-                    }
-                }
-            }
-
-        });
-
+        _payAccount.setOnClickListener(this);
+        _collectAccount.setOnClickListener(this);
+        _collectBank.setOnClickListener(this);
         _digest.addTextChangedListener(new CustomTextWatcher() {
             public void onTextChanged(CharSequence s, int start, int before, int count) {
                 _nextSize.setText("你还可以输入" + (200 - s.length()) + "字!");
@@ -338,52 +198,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             _cashActual.setText(String.format("%2.1f %%", ((cash * 100) / total) * 1.0f));
             _billActual.setText(String.format("%2.1f %%", ((bill * 100) / total) * 1.0f));
 
-        }
-    }
-
-    LocationSearchtResults searchtResults;//收款信息模糊查询下拉视图
-
-    /**
-     * 显示模糊查询数据
-     */
-    private void showPopupWindow(final ArrayList<String> results, final String type) {
-        if (searchtResults != null && searchtResults.isShowing()) {
-            if (results == null || results.size() <= 0) {
-                searchtResults.dismiss();
-            } else {
-                searchtResults.refresh(results);
-            }
-            return;
-        }
-        //实例化自定义的PopupWindow
-        searchtResults = new LocationSearchtResults(this, getLayoutInflater(),
-                results, _payAccount.getWidth() - 13, new ItemSelectedListener() {
-            public void onItemSelected(String item, int position) {
-                if ("pay".equals(type)) {  //付款账号
-                    pay_account = item;
-                    _payAccount.setText(pay_account);
-                } else if ("collect".equals(type)) {//收款账号
-                    collect_account = item;
-                    _collectAccount.setText(collect_account);
-                    CollectionAccount collectionAccount = collectAccounts.get(position);
-                    _collectBank.setText(collectionAccount.getCollect_bank());
-                    _collectName.setText(collectionAccount.getAccount_name());
-                    _collectZone.setText(collectionAccount.getCollect_zone());
-
-                } else if ("bank".equals(type)) {
-                    collect_bank = collectBanks.get(position).getBank_name();
-                    _collectBank.setText(collect_bank);
-                }
-            }
-        });
-        //制定自定义PopupWindow显示的位置
-        if ("pay".equals(type)) {
-            searchtResults.showAsDropDown(_payAccount, 0, 0);
-        } else if ("collect".equals(type)) {
-            searchtResults.showTop(_collectAccount);
-        } else if ("bank".equals(type)) {
-            searchtResults.showTop(_collectBank);
-//            searchtResults.showAsDropDown(_collectBank, 0, 0, Gravity.TOP);
         }
     }
 
@@ -454,15 +268,28 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             case R.id.tv_collect_account_zone:
                 zoneWindow.showZoneWindow();
                 break;
+            case R.id.tv_payment_account:
+                searchtResults.show(getWindow().getDecorView().getRootView(), "pay", new ItemSelectedListener() {
+                    public void onItemSelected(String item, Object object) {
+                        Toast.makeText(MainActivity.this, item, Toast.LENGTH_SHORT).show();
+                    }
+                });
+                break;
+            case R.id.tv_collect_account:
+                searchtResults.show(getWindow().getDecorView().getRootView(), "collect", new ItemSelectedListener() {
+                    public void onItemSelected(String item, Object object) {
+                        Toast.makeText(MainActivity.this, item, Toast.LENGTH_SHORT).show();
+                    }
+                });
+                break;
+            case R.id.tv_collect_account_bank:
+                searchtResults.show(getWindow().getDecorView().getRootView(), "bank", new ItemSelectedListener() {
+                    public void onItemSelected(String item, Object object) {
+                        Toast.makeText(MainActivity.this, item, Toast.LENGTH_SHORT).show();
+                    }
+                });
+                break;
         }
     }
 
-    @Override
-    public void onBackPressed() {
-        if (searchtResults != null && searchtResults.isShowing()) {
-            searchtResults.dismiss();
-            return;
-        }
-        super.onBackPressed();
-    }
 }

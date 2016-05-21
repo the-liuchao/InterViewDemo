@@ -40,7 +40,7 @@
                     android:layout_weight="1"
                     android:text="付款账户" />
 
-                <EditText
+                <TextView
                     android:id="@+id/tv_payment_account"
                     style="@style/record_value_style"
                     android:layout_gravity="center_vertical"
@@ -124,7 +124,7 @@
                     android:layout_weight="1"
                     android:text="收款账户" />
 
-                <EditText
+                <TextView
                     android:id="@+id/tv_collect_account"
                     style="@style/record_value_style"
                     android:digits="0123456789"
@@ -174,7 +174,7 @@
                     android:layout_weight="1"
                     android:text="收款银行" />
 
-                <EditText
+                <TextView
                     android:id="@+id/tv_collect_account_bank"
                     style="@style/record_value_style"
                     android:hint="请输入收款银行" />
