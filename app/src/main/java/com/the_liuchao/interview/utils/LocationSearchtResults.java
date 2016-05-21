@@ -137,6 +137,7 @@ public class LocationSearchtResults extends PopupWindow {
         //清楚原先数据
         this.list.clear();
         adapter.notifyDataSetChanged();
+        etSearch.setText("");
         //则通知外部的下拉列表项单击监听器并传递当前单击项的数据
         lvResults.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             public void onItemClick(AdapterView<?> arg0, View view, int index, long arg3) {
@@ -154,15 +155,11 @@ public class LocationSearchtResults extends PopupWindow {
                 dismiss();
             }
         });
-        if (watcher != null)
-            etSearch.removeTextChangedListener(watcher);
-        watcher = new SearchTextWatcher(type);
-        etSearch.addTextChangedListener(watcher);
-        setAnim();
+//        if (watcher != null)
+//            etSearch.removeTextChangedListener(watcher);
+//        watcher = new SearchTextWatcher(type);
+        etSearch.addTextChangedListener(new SearchTextWatcher(type));
         showAtLocation(rootView, Gravity.NO_GRAVITY, 0, 0);
-    }
-
-    private void setAnim() {
     }
 
     /***/
@@ -207,8 +204,6 @@ public class LocationSearchtResults extends PopupWindow {
                     } else {
                         result = "";
                     }
-                } else {
-                    lvResults.setVisibility(View.GONE);
                 }
             }
 
