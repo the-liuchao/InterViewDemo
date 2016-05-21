@@ -48,6 +48,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private EditText _collectName;
     private TextView _collectBank;
     private TextView _collectZone;
+    private TextView _confirm;//保存按钮
     private TextView _cashActual, _billActual, _cashMatch, _billMatch;
     private ZoneSelectWindow zoneWindow;
     LocationSearchtResults searchtResults;
@@ -79,6 +80,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         _payAccount = (TextView) findViewById(R.id.tv_payment_account);
         _collectAccount = (TextView) findViewById(R.id.tv_collect_account);
         _backBtn = (LinearLayout) findViewById(R.id.ll_back);
+        _confirm = (TextView) findViewById(R.id.tv_confirm);
         _payDate = (TextView) findViewById(R.id.tv_paydate);
         _cashReduce = (TextView) findViewById(R.id.tv_cash_reduce);
         _cashAdd = (TextView) findViewById(R.id.tv_cash_add);
@@ -103,6 +105,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         });
         searchtResults = new LocationSearchtResults(this, LayoutInflater.from(this));
     }
+
     private void initData() {
         try {
             DBUtils.saveCollectionAccount(new CollectionAccount("642310251210250451", System.currentTimeMillis() + "", "张三", "宝山友谊路招商分行", "上海,浦东新区"));
@@ -156,6 +159,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         _payAccount.setOnClickListener(this);
         _collectAccount.setOnClickListener(this);
         _collectBank.setOnClickListener(this);
+        _confirm.setOnClickListener(this);
         _digest.addTextChangedListener(new CustomTextWatcher() {
             public void onTextChanged(CharSequence s, int start, int before, int count) {
                 _nextSize.setText("你还可以输入" + (200 - s.length()) + "字!");
@@ -170,6 +174,16 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         _billMatch.addTextChangedListener(new CustomTextWatcher() {
             public void onTextChanged(CharSequence s, int start, int before, int count) {
                 changeActualPercent();
+            }
+        });
+        _cashExcept.addTextChangedListener(new CustomTextWatcher() {
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                changeExceptPercent();
+            }
+        });
+        _billExcept.addTextChangedListener(new CustomTextWatcher() {
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                changeExceptPercent();
             }
         });
         _cashExcept.addTextChangedListener(new CustomTextWatcher() {
@@ -195,10 +209,67 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             _cashActual.setText("50%");
             _billActual.setText("50%");
         } else {
+            _cashActual.setText(String.format("%2.1f %%", Math.round(((cash * 100) / total) * 1.0f)));
+            _billActual.setText(String.format("%2.1f %%", Math.round(((bill * 100) / total) * 1.0f)));
+
+        }
+    }
+
+    /**
+     * 监听付款金额改变 设置对应实际比例
+     */
+    private void changeExceptPercent() {
+        String cashStr = _cashExcept.getText().toString();
+        String billStr = _cashExcept.getText().toString();
+        int cash = Integer.parseInt(TextUtils.isEmpty(cashStr) ? "0" : cashStr);
+        int bill = Integer.parseInt(TextUtils.isEmpty(billStr) ? "0" : billStr);
+        int total = cash + bill;
+        if (total == 0) {
+            _cashActual.setText("50%");
+            _billActual.setText("50%");
+        } else {
             _cashActual.setText(String.format("%2.1f %%", ((cash * 100) / total) * 1.0f));
             _billActual.setText(String.format("%2.1f %%", ((bill * 100) / total) * 1.0f));
 
         }
+    }
+
+    /**
+     * 保存数据
+     */
+    private void save() {
+        if (TextUtils.isEmpty(_payAccount.getText())) {
+            Toast.makeText(this, "请输入付款账户", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        if (TextUtils.isEmpty(_collectAccount.getText())) {
+            Toast.makeText(this, "请输入收款账户", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        if (TextUtils.isEmpty(_collectBank.getText())) {
+            Toast.makeText(this, "请输入收款银行", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        if (TextUtils.isEmpty(_collectZone.getText())) {
+            Toast.makeText(this, "请输入收款地址", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        if (TextUtils.isEmpty(_collectName.getText())) {
+            Toast.makeText(this, "请输入收款账户名称", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        try {
+            DBUtils.saveBank(new CollectBank(_collectBank.getText().toString(), System.currentTimeMillis() + "", "1"));
+            DBUtils.savePayAccount(new PayAccount(_payAccount.getText().toString(), System.currentTimeMillis() + ""));
+            DBUtils.saveCollectionAccount(new CollectionAccount(_collectAccount.getText().toString()//
+                    , System.currentTimeMillis() + ""//
+                    , _collectName.getText().toString()//
+                    , _collectBank.getText().toString()//
+                    , _collectZone.getText().toString()));
+        } catch (DbException e) {
+            e.printStackTrace();
+        }
+        Toast.makeText(this,"保存成功",Toast.LENGTH_SHORT).show();
     }
 
     Editable billExcept;
@@ -208,6 +279,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         switch (v.getId()) {
             case R.id.ll_back://返回按钮
                 finish();
+                break;
+            case R.id.tv_confirm://保存按钮
+                save();
                 break;
             case R.id.tv_paydate://选择支付日
                 CustomDatetimeDialog dialog = new CustomDatetimeDialog(this, System.nanoTime());
@@ -271,25 +345,30 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             case R.id.tv_payment_account:
                 searchtResults.show(getWindow().getDecorView().getRootView(), "pay", new ItemSelectedListener() {
                     public void onItemSelected(String item, Object object) {
-                        Toast.makeText(MainActivity.this, item, Toast.LENGTH_SHORT).show();
+                        _payAccount.setText(item);
                     }
                 });
                 break;
             case R.id.tv_collect_account:
                 searchtResults.show(getWindow().getDecorView().getRootView(), "collect", new ItemSelectedListener() {
                     public void onItemSelected(String item, Object object) {
-                        Toast.makeText(MainActivity.this, item, Toast.LENGTH_SHORT).show();
+                        if (object != null) {
+                            CollectionAccount account = (CollectionAccount) object;
+                            _collectBank.setText(account.getCollect_bank());
+                            _collectName.setText(account.getAccount_name());
+                            _collectZone.setText(account.getCollect_zone());
+                        }
+                        _collectAccount.setText(item);
                     }
                 });
                 break;
             case R.id.tv_collect_account_bank:
                 searchtResults.show(getWindow().getDecorView().getRootView(), "bank", new ItemSelectedListener() {
                     public void onItemSelected(String item, Object object) {
-                        Toast.makeText(MainActivity.this, item, Toast.LENGTH_SHORT).show();
+                        _collectBank.setText(item);
                     }
                 });
                 break;
         }
     }
-
 }

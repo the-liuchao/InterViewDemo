@@ -17,7 +17,6 @@
             android:layout_width="25dp"
             android:layout_height="30dp"
             android:src="@mipmap/arrow_left" />
-        s
 
         <TextView
             android:layout_width="wrap_content"
@@ -37,6 +36,7 @@
         android:textSize="18sp" />
 
     <TextView
+        android:padding="8dip"
         android:id="@+id/tv_confirm"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"

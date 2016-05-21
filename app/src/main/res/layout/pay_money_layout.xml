@@ -57,7 +57,7 @@
                     android:gravity="center"
                     android:inputType="number"
                     android:padding="5dp"
-                    android:text="0"
+                    android:hint="0"
                     android:textSize="12sp" />
 
                 <ImageView
@@ -94,6 +94,7 @@
                 android:textSize="12sp" />
 
             <EditText
+                android:hint="0"
                 android:id="@+id/et_cash_matching"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -179,6 +180,7 @@
                     android:background="@color/themeColor" />
 
                 <EditText
+                    android:hint="0"
                     android:id="@+id/et_bill_except"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
@@ -232,6 +234,7 @@
                 android:digits="0123456789"
                 android:gravity="center"
                 android:inputType="number"
+                android:hint="0"
                 android:padding="5dip"
                 android:text="0"
                 android:textSize="12sp" />

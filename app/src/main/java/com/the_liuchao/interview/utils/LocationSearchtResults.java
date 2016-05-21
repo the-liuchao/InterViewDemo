@@ -46,10 +46,9 @@ public class LocationSearchtResults extends PopupWindow {
     private ListView lvResults;
     private List<String> list;
     private BaseAdapter adapter;
-    private Context context;
     private String result = "";
     private String type;
-    private SearchTextWatcher watcher;
+    List<CollectionAccount> collectAccounts = null;
     /**
      * Handler处理UI更新
      */
@@ -77,7 +76,6 @@ public class LocationSearchtResults extends PopupWindow {
 
                     break;
                 case AUTO_SEARCH_COLLECT_ACCOUNT:
-                    List<CollectionAccount> collectAccounts = null;
                     final ArrayList<String> results = new ArrayList<>();
                     collectAccounts = (List<CollectionAccount>) msg.obj;
                     if (collectAccounts == null || collectAccounts.size() <= 0)
@@ -112,7 +110,6 @@ public class LocationSearchtResults extends PopupWindow {
 
     public LocationSearchtResults(Context context, LayoutInflater layoutInflater) {
         super(context);
-        this.context = context;
         this.list = new ArrayList<>();
         contentView = layoutInflater.inflate(R.layout.pull_list_layout, null);
         lvResults = (ListView) contentView.findViewById(R.id.lv_data);
@@ -132,7 +129,7 @@ public class LocationSearchtResults extends PopupWindow {
         this.setFocusable(true);
     }
 
-    public void show(View rootView, String type, final ItemSelectedListener listener) {
+    public void show(View rootView, final String type, final ItemSelectedListener listener) {
         this.type = type;
         //清楚原先数据
         this.list.clear();
@@ -142,7 +139,10 @@ public class LocationSearchtResults extends PopupWindow {
         lvResults.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             public void onItemClick(AdapterView<?> arg0, View view, int index, long arg3) {
                 if (listener != null) {
-                    if (listener != null)
+                    if ("collect".equals(type)) {
+                        if (collectAccounts != null && collectAccounts.size() >= 0)
+                            listener.onItemSelected(list.get(index), collectAccounts.get(index));
+                    } else
                         listener.onItemSelected(list.get(index), index);
                     dismiss();
                 }
@@ -151,7 +151,7 @@ public class LocationSearchtResults extends PopupWindow {
         tvConfirm.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 if (listener != null)
-                    listener.onItemSelected(tvConfirm.getText().toString(), -1);
+                    listener.onItemSelected(tvConfirm.getText().toString(), null);
                 dismiss();
             }
         });
