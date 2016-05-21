@@ -220,19 +220,13 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         String billStr = _cashExcept.getText().toString();
         int cash = Integer.parseInt(TextUtils.isEmpty(cashStr) ? "0" : cashStr);
         int bill = Integer.parseInt(TextUtils.isEmpty(billStr) ? "0" : billStr);
+        if(cash>100||cash<0)
+            Toast.makeText(this,"请输入正确付款期望比例(0~100)",Toast.LENGTH_SHORT).show();
+        if(bill>100||bill<0)
+            Toast.makeText(this,"请输入正确付款期望比例(0~100)",Toast.LENGTH_SHORT).show();
         if (0 == index) {
-            if (cash > 100)
-                cash = 100;
-            else if (cash < 0)
-                cash = 0;
-            _cashExcept.setText(cash+"");
             _billExcept.setText((100 - cash)+"");
         } else if (1 == index) {
-            if (bill > 100)
-                bill = 100;
-            else if (bill < 0)
-                bill = 0;
-            _cashExcept.setText(bill+"");
             _cashExcept.setText((100 - bill)+"");
         }
     }
@@ -259,6 +253,14 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         }
         if (TextUtils.isEmpty(_collectName.getText())) {
             Toast.makeText(this, "请输入收款账户名称", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        String cashStr = _cashExcept.getText().toString();
+        String billStr = _cashExcept.getText().toString();
+        int cash = Integer.parseInt(TextUtils.isEmpty(cashStr) ? "0" : cashStr);
+        int bill = Integer.parseInt(TextUtils.isEmpty(billStr) ? "0" : billStr);
+        if(cash>100||cash<0||bill>100||bill<0) {
+            Toast.makeText(this, "请输入正确付款期望比例(0~100)", Toast.LENGTH_SHORT).show();
             return;
         }
         try {
