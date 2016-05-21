@@ -14,11 +14,13 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.the_liuchao.interview.R;
+import com.the_liuchao.interview.bean.CollectBank;
 import com.the_liuchao.interview.bean.CollectionAccount;
 import com.the_liuchao.interview.bean.PayAccount;
 import com.the_liuchao.interview.dao.DBUtils;
 import com.the_liuchao.interview.date.CustomDatetimeDialog;
 import com.the_liuchao.interview.inter.CollectAccountCallBack;
+import com.the_liuchao.interview.inter.CollectBankCallBack;
 import com.the_liuchao.interview.inter.CustomTextWatcher;
 import com.the_liuchao.interview.inter.ItemSelectedListener;
 import com.the_liuchao.interview.inter.ZoneSelectedListener;
@@ -41,9 +43,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     private static final int AUTO_SEARCH_PAY_ACCOUNT = 0;
     private static final int AUTO_SEARCH_COLLECT_ACCOUNT = 1;
+    private static final int AUTO_SEARCH_COLLECT_BANK = 2;
     private EditText _payAccount, _collectAccount;
     private LinearLayout _backBtn;
-    private String pay_account = "", collect_account = "";//付款账户,收款账户
+    private String pay_account = "", collect_account = "", collect_bank = "";//付款账户,收款账户,收款银行
     private TextView _payDate, _cashReduce, _cashAdd, _billReduce, _billAdd;
     private EditText _cashExcept;
     private EditText _billExcept;
@@ -54,6 +57,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private TextView _collectZone;
     private TextView _cashActual, _billActual, _cashMatch, _billMatch;
     List<CollectionAccount> collectAccounts;
+    List<CollectBank> collectBanks;
     private ZoneSelectWindow zoneWindow;
     /**
      * Handler处理UI更新
@@ -92,6 +96,17 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                         results.add(account_num);
                     }
                     showPopupWindow(results, "collect");
+                    break;
+                case AUTO_SEARCH_COLLECT_BANK:
+                    final ArrayList<String> banks = new ArrayList<>();
+                    collectBanks = (List<CollectBank>) msg.obj;
+                    if (collectBanks == null || collectBanks.size() <= 0)
+                        break;
+                    for (CollectBank collectBank : collectBanks) {
+                        String account_num = collectBank.getBank_name();
+                        banks.add(account_num);
+                    }
+                    showPopupWindow(banks, "bank");
                     break;
             }
         }
@@ -153,6 +168,18 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             DBUtils.saveCollectionAccount(new CollectionAccount("121215465464848488", System.currentTimeMillis() + "", "张三", "宝山友谊路招商分行", "上海,浦东新区"));
             DBUtils.saveCollectionAccount(new CollectionAccount("121275465464848488", System.currentTimeMillis() + "", "李四", "宝山友谊路招商分行", "上海,浦东新区"));
             DBUtils.saveCollectionAccount(new CollectionAccount("121295465464848488", System.currentTimeMillis() + "", "王五", "宝山友谊路招商分行", "上海,浦东新区"));
+            DBUtils.saveCollectionAccount(new CollectionAccount("342310251210250451", System.currentTimeMillis() + "", "张三", "宝山友谊路招商分行", "上海,浦东新区"));
+            DBUtils.saveCollectionAccount(new CollectionAccount("416212515626615151", System.currentTimeMillis() + "", "张三", "宝山友谊路招商分行", "上海,浦东新区"));
+            DBUtils.saveCollectionAccount(new CollectionAccount("545451231321565454", System.currentTimeMillis() + "", "张三", "宝山友谊路招商分行", "上海,浦东新区"));
+            DBUtils.saveCollectionAccount(new CollectionAccount("621215465464848488", System.currentTimeMillis() + "", "张三", "宝山友谊路招商分行", "上海,浦东新区"));
+            DBUtils.saveCollectionAccount(new CollectionAccount("621715465464848488", System.currentTimeMillis() + "", "张三", "宝山友谊路招商分行", "上海,浦东新区"));
+            DBUtils.saveCollectionAccount(new CollectionAccount("621715465464843288", System.currentTimeMillis() + "", "张三", "宝山友谊路招商分行", "上海,浦东新区"));
+            DBUtils.saveCollectionAccount(new CollectionAccount("621715465464843280", System.currentTimeMillis() + "", "张三", "宝山友谊路招商分行", "上海,浦东新区"));
+            DBUtils.saveCollectionAccount(new CollectionAccount("621715465464843223", System.currentTimeMillis() + "", "张三", "宝山友谊路招商分行", "上海,浦东新区"));
+            DBUtils.saveCollectionAccount(new CollectionAccount("621715465464846723", System.currentTimeMillis() + "", "张三", "宝山友谊路招商分行", "上海,浦东新区"));
+            DBUtils.saveCollectionAccount(new CollectionAccount("721275465464848488", System.currentTimeMillis() + "", "李四", "宝山友谊路招商分行", "上海,浦东新区"));
+            DBUtils.saveCollectionAccount(new CollectionAccount("821295465464848488", System.currentTimeMillis() + "", "王五", "宝山友谊路招商分行", "上海,浦东新区"));
+            DBUtils.saveCollectionAccount(new CollectionAccount("921295465464848488", System.currentTimeMillis() + "", "王五", "宝山友谊路招商分行", "上海,浦东新区"));
             DBUtils.savePayAccount(new PayAccount("642310251210250451", System.currentTimeMillis() + ""));
             DBUtils.savePayAccount(new PayAccount("216212515626615151", System.currentTimeMillis() + ""));
             DBUtils.savePayAccount(new PayAccount("845451231321565454", System.currentTimeMillis() + ""));
@@ -162,6 +189,17 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             DBUtils.savePayAccount(new PayAccount("421215465464848488", System.currentTimeMillis() + ""));
             DBUtils.savePayAccount(new PayAccount("521215465464848488", System.currentTimeMillis() + ""));
             DBUtils.savePayAccount(new PayAccount("921215465464848488", System.currentTimeMillis() + ""));
+            DBUtils.saveBank(new CollectBank("上海宝山友谊分行招商分行", System.currentTimeMillis() + "", "1"));
+            DBUtils.saveBank(new CollectBank("长沙雨湖区浦东大道建设分行", System.currentTimeMillis() + "", "1"));
+            DBUtils.saveBank(new CollectBank("湘潭市九龙农业银行分行", System.currentTimeMillis() + "", "1"));
+            DBUtils.saveBank(new CollectBank("常德市文理学院建设分行", System.currentTimeMillis() + "", "1"));
+            DBUtils.saveBank(new CollectBank("北京朝阳区同城招商分行", System.currentTimeMillis() + "", "1"));
+            DBUtils.saveBank(new CollectBank("深圳湖田区工商银行分行", System.currentTimeMillis() + "", "1"));
+            DBUtils.saveBank(new CollectBank("上海宝山友谊分行招商分行", System.currentTimeMillis() + "", "1"));
+            DBUtils.saveBank(new CollectBank("上海宝山友谊分行招商分行", System.currentTimeMillis() + "", "1"));
+            DBUtils.saveBank(new CollectBank("上海宝山友谊分行招商分行", System.currentTimeMillis() + "", "1"));
+            DBUtils.saveBank(new CollectBank("上海宝山友谊分行招商分行", System.currentTimeMillis() + "", "1"));
+            DBUtils.saveBank(new CollectBank("上海宝山友谊分行招商分行", System.currentTimeMillis() + "", "1"));
         } catch (DbException e) {
             e.printStackTrace();
         }
@@ -230,7 +268,33 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 }
             }
         });
+        _collectBank.addTextChangedListener(new CustomTextWatcher() {
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                String bank = _collectBank.getText().toString();
+                if (bank.length() > 0) {
+                    if (collect_bank.length() <= 0) {
+                        try {
+                            DBUtils.filterCollectionBank(bank, new CollectBankCallBack() {
+                                public void obtainData(List<CollectBank> banks) {
+                                    Message msg = handler.obtainMessage(AUTO_SEARCH_COLLECT_BANK);
+                                    msg.obj = banks;
+                                    msg.sendToTarget();
+                                }
+                            });
+                        } catch (DbException e) {
+                            e.printStackTrace();
+                        }
+                    } else {
+                        collect_bank = "";
+                    }
+                } else {
+                    if (searchtResults != null && searchtResults.isShowing()) {
+                        searchtResults.dismiss();
+                    }
+                }
+            }
 
+        });
 
         _digest.addTextChangedListener(new CustomTextWatcher() {
             public void onTextChanged(CharSequence s, int start, int before, int count) {
@@ -298,7 +362,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 if ("pay".equals(type)) {  //付款账号
                     pay_account = item;
                     _payAccount.setText(pay_account);
-                } else {//收款账号
+                } else if ("collect".equals(type)) {//收款账号
                     collect_account = item;
                     _collectAccount.setText(collect_account);
                     CollectionAccount collectionAccount = collectAccounts.get(position);
@@ -306,6 +370,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     _collectName.setText(collectionAccount.getAccount_name());
                     _collectZone.setText(collectionAccount.getCollect_zone());
 
+                } else if ("bank".equals(type)) {
+                    collect_bank = collectBanks.get(position).getBank_name();
+                    _collectBank.setText(collect_bank);
                 }
             }
         });
@@ -313,7 +380,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         if ("pay".equals(type)) {
             searchtResults.showAsDropDown(_payAccount, 0, 0);
         } else if ("collect".equals(type)) {
-            searchtResults.showAsDropDown(_collectAccount, 0, 0);
+            searchtResults.showTop(_collectAccount);
+        } else if ("bank".equals(type)) {
+            searchtResults.showTop(_collectBank);
+//            searchtResults.showAsDropDown(_collectBank, 0, 0, Gravity.TOP);
         }
     }
 
@@ -387,4 +457,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         }
     }
 
+    @Override
+    public void onBackPressed() {
+        if (searchtResults != null && searchtResults.isShowing()) {
+            searchtResults.dismiss();
+            return;
+        }
+        super.onBackPressed();
+    }
 }
