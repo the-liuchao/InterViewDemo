@@ -3,5 +3,5 @@
     android:duration="200"
     android:fromXDelta="0"
     android:fromYDelta="100%p"
-    android:toXDelta="80%p"
-    android:toYDelta="0"/>
+    android:toXDelta="0"
+    android:toYDelta="80%p"/>
