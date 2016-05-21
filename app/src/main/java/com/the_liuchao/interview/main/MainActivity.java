@@ -178,12 +178,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         });
         _cashExcept.addTextChangedListener(new CustomTextWatcher() {
             public void onTextChanged(CharSequence s, int start, int before, int count) {
-                changeExceptPercent();
+                changeExceptPercent(0);
             }
         });
         _billExcept.addTextChangedListener(new CustomTextWatcher() {
             public void onTextChanged(CharSequence s, int start, int before, int count) {
-                changeExceptPercent();
+                changeExceptPercent(1);
             }
         });
         _cashExcept.addTextChangedListener(new CustomTextWatcher() {
@@ -200,37 +200,40 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
      * 监听付款金额改变 设置对应实际比例
      */
     private void changeActualPercent() {
-        String cashStr = _cashMatch.getText().toString();
-        String billStr = _billMatch.getText().toString();
-        int cash = Integer.parseInt(TextUtils.isEmpty(cashStr) ? "0" : cashStr);
-        int bill = Integer.parseInt(TextUtils.isEmpty(billStr) ? "0" : billStr);
+        CharSequence cashStr = _cashMatch.getText();
+        CharSequence billStr = _billMatch.getText();
+        int cash = Integer.parseInt(TextUtils.isEmpty(cashStr) ? "0" : cashStr.toString());
+        int bill = Integer.parseInt(TextUtils.isEmpty(billStr) ? "0" : billStr.toString());
         int total = cash + bill;
         if (total == 0) {
             _cashActual.setText("50%");
             _billActual.setText("50%");
         } else {
-            _cashActual.setText(String.format("%2.1f %%", Math.round(((cash * 100) / total) * 1.0f)));
-            _billActual.setText(String.format("%2.1f %%", Math.round(((bill * 100) / total) * 1.0f)));
+            _cashActual.setText(String.format("%2.0f %%", Math.round((cash * 100f) / total)*1.0f));
+            _billActual.setText(String.format("%2.0f %%", Math.round((bill * 100f) / total)*1.0f));
 
         }
     }
 
-    /**
-     * 监听付款金额改变 设置对应实际比例
-     */
-    private void changeExceptPercent() {
+    private void changeExceptPercent(int index) {
         String cashStr = _cashExcept.getText().toString();
         String billStr = _cashExcept.getText().toString();
         int cash = Integer.parseInt(TextUtils.isEmpty(cashStr) ? "0" : cashStr);
         int bill = Integer.parseInt(TextUtils.isEmpty(billStr) ? "0" : billStr);
-        int total = cash + bill;
-        if (total == 0) {
-            _cashActual.setText("50%");
-            _billActual.setText("50%");
-        } else {
-            _cashActual.setText(String.format("%2.1f %%", ((cash * 100) / total) * 1.0f));
-            _billActual.setText(String.format("%2.1f %%", ((bill * 100) / total) * 1.0f));
-
+        if (0 == index) {
+            if (cash > 100)
+                cash = 100;
+            else if (cash < 0)
+                cash = 0;
+            _cashExcept.setText(cash+"");
+            _billExcept.setText((100 - cash)+"");
+        } else if (1 == index) {
+            if (bill > 100)
+                bill = 100;
+            else if (bill < 0)
+                bill = 0;
+            _cashExcept.setText(bill+"");
+            _cashExcept.setText((100 - bill)+"");
         }
     }
 
@@ -269,7 +272,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         } catch (DbException e) {
             e.printStackTrace();
         }
-        Toast.makeText(this,"保存成功",Toast.LENGTH_SHORT).show();
+        Toast.makeText(this, "保存成功", Toast.LENGTH_SHORT).show();
     }
 
     Editable billExcept;
