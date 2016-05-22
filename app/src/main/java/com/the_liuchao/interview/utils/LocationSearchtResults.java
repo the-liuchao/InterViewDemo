@@ -80,14 +80,13 @@ public class LocationSearchtResults extends PopupWindow {
 
                     break;
                 case AUTO_SEARCH_COLLECT_ACCOUNT:
-                    final ArrayList<String> results = new ArrayList<>();
+                    ArrayList<String> results = new ArrayList<>();
                     collectAccounts = (List<CollectionAccount>) msg.obj;
-                    if (collectAccounts == null || collectAccounts.size() <= 0)
-                        break;
-                    for (CollectionAccount collectAccount : collectAccounts) {
-                        String account_num = collectAccount.getAccount_numb();
-                        results.add(account_num);
-                    }
+                    if (collectAccounts != null && collectAccounts.size() > 0)
+                        for (CollectionAccount collectAccount : collectAccounts) {
+                            String account_num = collectAccount.getAccount_numb();
+                            results.add(account_num);
+                        }
                     onRefresh(results);
                     break;
                 case AUTO_SEARCH_COLLECT_BANK:
@@ -157,15 +156,15 @@ public class LocationSearchtResults extends PopupWindow {
             public void onClick(View v) {
                 if (listener != null) {
                     String result = etSearch.getText().toString();
-                    if(TextUtils.isEmpty(result)){
-                        Toast.makeText(v.getContext(),"请输入！",Toast.LENGTH_SHORT).show();
+                    if (TextUtils.isEmpty(result)) {
+                        Toast.makeText(v.getContext(), "请输入！", Toast.LENGTH_SHORT).show();
                         return;
                     }
-                    if("collect".equals(type)||"pay".equals(type)){
+                    if ("collect".equals(type) || "pay".equals(type)) {
                         Pattern pattern = Pattern.compile("[0-9]{18}");
                         Matcher matcher = pattern.matcher(result);
-                        if(!matcher.matches()){
-                            Toast.makeText(v.getContext(),"请输入正确的账户！",Toast.LENGTH_SHORT).show();
+                        if (!matcher.matches()) {
+                            Toast.makeText(v.getContext(), "请输入正确的账户！", Toast.LENGTH_SHORT).show();
                             return;
                         }
                     }

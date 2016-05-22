@@ -30,7 +30,6 @@
             android:padding="5dip"
             android:text="确定" />
     </RelativeLayout>
-
     <ListView
         android:id="@+id/lv_data"
         android:layout_width="match_parent"

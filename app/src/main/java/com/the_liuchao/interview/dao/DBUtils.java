@@ -87,8 +87,10 @@ public class DBUtils {
                 sqlInfo.setSql("select * from c_account where account_numb like '" + pattern + "%'");
                 try {
                     SoftReference<List<DbModel>> models = new SoftReference<List<DbModel>>(InterApplication.getDb().findDbModelAll(sqlInfo));
-                    if(models.get()==null||models.get().size()<=0)
+                    if(models.get()==null||models.get().size()<=0){
+                        callback.obtainData(results);
                         return;
+                    }
                     for (DbModel model : models.get()) {
                         String account_numb = model.getString("account_numb");
                         String account_date = model.getString("account_date");
@@ -125,8 +127,10 @@ public class DBUtils {
                 sqlInfo.setSql("select * from c_bank where bank_name like '" + pattern + "%'");
                 try {
                     SoftReference<List<DbModel>> models = new SoftReference<List<DbModel>>(InterApplication.getDb().findDbModelAll(sqlInfo));
-                    if(models.get()==null||models.get().size()<=0)
+                    if(models.get()==null||models.get().size()<=0) {
+                        callback.obtainData(results);
                         return;
+                    }
                     for (DbModel model : models.get()) {
                         String bank_name = model.getString("bank_name");
                         String bank_date = model.getString("bank_date");
