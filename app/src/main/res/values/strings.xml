@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">InterViewDemo</string>
+    <string name="select_corect_date">请选择今天以后的支付日期</string>
 </resources>

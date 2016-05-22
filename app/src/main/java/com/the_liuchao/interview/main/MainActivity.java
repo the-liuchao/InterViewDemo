@@ -29,6 +29,7 @@ import com.the_liuchao.interview.utils.ZoneSelectWindow;
 import org.xutils.ex.DbException;
 
 import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Date;
 
 /**
@@ -52,6 +53,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private TextView _cashActual, _billActual, _cashMatch, _billMatch;
     private ZoneSelectWindow zoneWindow;
     LocationSearchtResults searchtResults;
+    CustomTextWatcher cashExceptWatcher;
+    CustomTextWatcher billExceptWatcher;
     /**
      * Handler处理UI更新
      */
@@ -104,6 +107,18 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             }
         });
         searchtResults = new LocationSearchtResults(this, LayoutInflater.from(this));
+        cashExceptWatcher = new CustomTextWatcher(){
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                changeExceptPercent(0);
+            }
+        };
+        billExceptWatcher = new CustomTextWatcher(){
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                changeExceptPercent(1);
+            }
+        };
     }
 
     private void initData() {
@@ -176,16 +191,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 changeActualPercent();
             }
         });
-        _cashExcept.addTextChangedListener(new CustomTextWatcher() {
-            public void onTextChanged(CharSequence s, int start, int before, int count) {
-                changeExceptPercent(0);
-            }
-        });
-        _billExcept.addTextChangedListener(new CustomTextWatcher() {
-            public void onTextChanged(CharSequence s, int start, int before, int count) {
-                changeExceptPercent(1);
-            }
-        });
+        _cashExcept.addTextChangedListener(cashExceptWatcher);
+        _billExcept.addTextChangedListener(billExceptWatcher);
         _cashExcept.addTextChangedListener(new CustomTextWatcher() {
             public void onTextChanged(CharSequence s, int start, int before, int count) {
             }
@@ -217,7 +224,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     private void changeExceptPercent(int index) {
         String cashStr = _cashExcept.getText().toString();
-        String billStr = _cashExcept.getText().toString();
+        String billStr = _billExcept.getText().toString();
         int cash = Integer.parseInt(TextUtils.isEmpty(cashStr) ? "0" : cashStr);
         int bill = Integer.parseInt(TextUtils.isEmpty(billStr) ? "0" : billStr);
         if(cash>100||cash<0)
@@ -225,9 +232,13 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         if(bill>100||bill<0)
             Toast.makeText(this,"请输入正确付款期望比例(0~100)",Toast.LENGTH_SHORT).show();
         if (0 == index) {
+            _billExcept.removeTextChangedListener(billExceptWatcher);
             _billExcept.setText((100 - cash)+"");
+            _billExcept.addTextChangedListener(billExceptWatcher);
         } else if (1 == index) {
+            _cashExcept.removeTextChangedListener(cashExceptWatcher);
             _cashExcept.setText((100 - bill)+"");
+            _cashExcept.addTextChangedListener(cashExceptWatcher);
         }
     }
 
@@ -289,12 +300,16 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 save();
                 break;
             case R.id.tv_paydate://选择支付日
-                CustomDatetimeDialog dialog = new CustomDatetimeDialog(this, System.nanoTime());
+                CustomDatetimeDialog dialog = new CustomDatetimeDialog(this, System.currentTimeMillis());
                 dialog.setOnDateSetChnange(new CustomDatetimeDialog.OnDateChangeSetListener() {
                     public void OnDateSet(AlertDialog alertDailog, long date) {
                         //设置日期时间选择的值long
                         SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
+                        Date selectDate = new Date(date);
                         String dateStr = formatter.format(new Date(date));
+                        if(!checkDate(selectDate)){
+                            dateStr = formatter.format(new Date());
+                        }
                         _payDate.setText(dateStr);
                     }
                 });
@@ -305,10 +320,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 if (!TextUtils.isEmpty(billExcept) && Integer.parseInt(billExcept.toString()) < 100) {
                     int bill = Integer.parseInt(billExcept.toString()) + 1;
                     _billExcept.setText(bill + "");
-                    _cashExcept.setText((100 - bill) + "");
                 } else {
                     _billExcept.setText("0");
-                    _cashExcept.setText("100");
                 }
                 break;
             case R.id.tv_bill_reduce:
@@ -316,10 +329,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 if (!TextUtils.isEmpty(billExcept) && Integer.parseInt(billExcept.toString()) > 0) {
                     int bill = Integer.parseInt(billExcept.toString()) - 1;
                     _billExcept.setText(bill + "");
-                    _cashExcept.setText((100 - bill) + "");
                 } else {
                     _billExcept.setText("0");
-                    _cashExcept.setText("100");
                 }
                 break;
             case R.id.tv_cash_add:
@@ -327,10 +338,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 if (!TextUtils.isEmpty(cashExcept) && Integer.parseInt(cashExcept.toString()) < 100) {
                     int cash = Integer.parseInt(cashExcept.toString()) + 1;
                     _cashExcept.setText(cash + "");
-                    _billExcept.setText((100 - cash) + "");
                 } else {
                     _cashExcept.setText("100");
-                    _billExcept.setText("0");
                 }
                 break;
             case R.id.tv_cash_reduce:
@@ -338,10 +347,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 if (!TextUtils.isEmpty(cashExcept) && Integer.parseInt(cashExcept.toString()) > 0) {
                     int cash = Integer.parseInt(cashExcept.toString()) - 1;
                     _cashExcept.setText(cash + "");
-                    _billExcept.setText((100 - cash) + "");
                 } else {
                     _cashExcept.setText("100");
-                    _billExcept.setText("0");
                 }
                 break;
             case R.id.tv_collect_account_zone:
@@ -375,5 +382,15 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 });
                 break;
         }
+    }
+
+    private boolean checkDate(Date selectDate) {
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTimeInMillis(System.currentTimeMillis()-24*60*60*1000);
+        if(selectDate.getTime()>calendar.getTimeInMillis())
+            return true;
+        else
+            return false;
+
     }
 }

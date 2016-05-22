@@ -4,6 +4,7 @@ import android.content.Context;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Handler;
 import android.os.Message;
+import android.text.TextUtils;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -15,6 +16,7 @@ import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.PopupWindow;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.the_liuchao.interview.R;
 import com.the_liuchao.interview.adapter.StringListAdapter;
@@ -31,6 +33,8 @@ import org.xutils.ex.DbException;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * Created by hp on 2016/5/19.
@@ -135,6 +139,7 @@ public class LocationSearchtResults extends PopupWindow {
         this.list.clear();
         adapter.notifyDataSetChanged();
         etSearch.setText("");
+        etSearch.setFocusable(true);
         //则通知外部的下拉列表项单击监听器并传递当前单击项的数据
         lvResults.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             public void onItemClick(AdapterView<?> arg0, View view, int index, long arg3) {
@@ -150,9 +155,23 @@ public class LocationSearchtResults extends PopupWindow {
         });
         tvConfirm.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
-                if (listener != null)
-                    listener.onItemSelected(tvConfirm.getText().toString(), null);
-                dismiss();
+                if (listener != null) {
+                    String result = etSearch.getText().toString();
+                    if(TextUtils.isEmpty(result)){
+                        Toast.makeText(v.getContext(),"请输入！",Toast.LENGTH_SHORT).show();
+                        return;
+                    }
+                    if("collect".equals(type)||"pay".equals(type)){
+                        Pattern pattern = Pattern.compile("[0-9]{18}");
+                        Matcher matcher = pattern.matcher(result);
+                        if(!matcher.matches()){
+                            Toast.makeText(v.getContext(),"请输入正确的账户！",Toast.LENGTH_SHORT).show();
+                            return;
+                        }
+                    }
+                    listener.onItemSelected(etSearch.getText().toString(), null);
+                    dismiss();
+                }
             }
         });
 //        if (watcher != null)
